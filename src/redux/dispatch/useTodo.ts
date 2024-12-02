@@ -20,16 +20,18 @@ const useTodo = () => {
     const addTodo = ({
         text,   
         dueDate,
-
+        desc,
     }:{
         text: string;
         dueDate: string;
+        desc: string;
     }) => {
         dispatch(Todo.addTodo({
             id: Date.now(),
             createdAt: new Date().toISOString(),
             text,
-            dueDate
+            dueDate,
+            desc
         }));
     };
 

@@ -30,6 +30,7 @@ const TodoList = ({
   const [formData, setFormData] = useState({
     newTodoTime: "",
     newTodoText: "",
+    newTodoDesc: "",
   });
 
   // State for filter option
@@ -49,17 +50,18 @@ const TodoList = ({
 
     // Check if both fields are filled
     if (formData.newTodoTime === "" || formData.newTodoText.trim() === "") {
-      alert("Please enter both the fields");
+      alert("Please enter all the fields");
       return;
     } else {
       // Add new task
       addTodo({
         text: formData.newTodoText,
         dueDate: formData.newTodoTime,
+        desc: formData.newTodoDesc,
       });
 
       // clear form data
-      setFormData({ newTodoText: "", newTodoTime: "" });
+      setFormData({ newTodoText: "", newTodoTime: "", newTodoDesc: "" });
     }
   };
 
@@ -70,11 +72,17 @@ const TodoList = ({
 
   // Function to handle editing todo
   const handleEditTodo = (id: number) => {
+    if (formData.newTodoText.trim() !== "") {
+      return alert("Please add the current task before editing");
+    }
+
     setFormData({
       newTodoText:
         todoDispatch.todos.find((todo) => todo.id === id)?.text || "",
       newTodoTime:
         todoDispatch.todos.find((todo) => todo.id === id)?.dueDate || "",
+      newTodoDesc:
+        todoDispatch.todos.find((todo) => todo.id === id)?.desc || "",
     });
 
     removeTodo(id); // Remove original todo after editing
@@ -124,7 +132,7 @@ const TodoList = ({
       className={`min-h-screen flex flex-col justify-start md:justify-center items-center ${
         darkMode
           ? "bg-gray-900 text-white"
-          : "bg-gradient-to-b from-pink-500 to-rose-500 text-gray-800"
+          : "bg-gradient-to-b from-pink-500 to-rose-500 text-neutral-900 placeholder:text-gray-500"
       }`}>
       {/* Header */}
       <div className="flex items-center justify-center mt-10 gap-3">
@@ -172,7 +180,9 @@ const TodoList = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className={`p-4 rounded-md outline-none lg:w-1/2 w-full ${
-              darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
+              darkMode
+                ? "bg-gray-800 text-white"
+                : "bg-white placeholder:text-neutral-900"
             }`}
           />
         </div>
@@ -181,36 +191,58 @@ const TodoList = ({
           className={`rounded-md shadow-lg p-4 mt-8 ${
             darkMode ? "bg-gray-800" : "bg-white"
           } w-full`}>
-          <form onSubmit={handleAddTodo} className="flex items-center">
-            <motion.button type="submit" animate={{ rotate: 360 }}>
-              <IoMdAddCircle
-                className={`text-3xl ${
-                  darkMode ? "text-blue-300" : "text-pink-500"
+          <form onSubmit={handleAddTodo}>
+            <div className="flex justify-between flex-col sm:flex-row">
+              <div className="flex items-center gap-3">
+                <motion.button type="submit" animate={{ rotate: 360 }}>
+                  <IoMdAddCircle
+                    className={`text-3xl ${
+                      darkMode ? "text-blue-300" : "text-pink-500"
+                    }`}
+                  />
+                </motion.button>
+                <input
+                  type="text"
+                  placeholder="Add new task"
+                  value={formData.newTodoText}
+                  onChange={(e) =>
+                    setFormData({ ...formData, newTodoText: e.target.value })
+                  }
+                  className={`p-2 m-3 outline-none flex-grow ${
+                    darkMode
+                      ? "bg-gray-800 text-white"
+                      : "bg-white text-neutral-900 placeholder:text-gray-500"
+                  }`}
+                />
+              </div>
+              <div className="flex items-center gap-3">
+                <label htmlFor="dueDate">Due Date:</label>
+                <input
+                  type="date"
+                  value={formData.newTodoTime}
+                  onChange={(e) =>
+                    setFormData({ ...formData, newTodoTime: e.target.value })
+                  }
+                  className={`p-2 m-3 outline-none ${
+                    darkMode ? "bg-gray-800 text-white" : "bg-white text-black"
+                  }`}
+                />
+              </div>
+            </div>
+            <div>
+              <textarea
+                placeholder="Description"
+                value={formData.newTodoDesc}
+                onChange={(e) =>
+                  setFormData({ ...formData, newTodoDesc: e.target.value })
+                }
+                className={`p-2 rounded-md outline-none w-full ${
+                  darkMode
+                    ? "bg-blue-200 text-black "
+                    : "bg-pink-400 placeholder:text-neutral-900"
                 }`}
               />
-            </motion.button>
-            <input
-              type="text"
-              placeholder="Add new todo"
-              value={formData.newTodoText}
-              onChange={(e) =>
-                setFormData({ ...formData, newTodoText: e.target.value })
-              }
-              className={`p-2 m-3 outline-none flex-grow ${
-                darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-              }`}
-            />
-            <label htmlFor="dueDate">Due Date:</label>
-            <input
-              type="date"
-              value={formData.newTodoTime}
-              onChange={(e) =>
-                setFormData({ ...formData, newTodoTime: e.target.value })
-              }
-              className={`p-2 m-3 outline-none ${
-                darkMode ? "bg-gray-800 text-white" : "bg-white text-gray-800"
-              }`}
-            />
+            </div>
           </form>
         </div>
 
@@ -233,15 +265,14 @@ const TodoList = ({
                       <div
                         ref={provided.innerRef}
                         {...provided.draggableProps}
-                        {...provided.dragHandleProps}
-                      >
+                        {...provided.dragHandleProps}>
                         <div
                           className={`flex relative items-center justify-between gap-3 pt-8 rounded-md shadow-md p-4 mb-4 ${
                             todo.complete ? "line-through" : ""
                           } ${
                             darkMode
                               ? "bg-gray-800 text-white"
-                              : "bg-white text-gray-800"
+                              : "bg-white text-neutral-900 placeholder:text-gray-500"
                           }`}>
                           <div
                             className={`${
@@ -264,7 +295,20 @@ const TodoList = ({
                               <FaCircle className="text-pink-500 text-2xl" />
                             )}
                           </button>
-                          <p className="flex-grow px-2">{todo.text}</p>
+                          <div className="w-full flex flex-col">
+                            <p className="flex-grow px-2">{todo.text}</p>
+                            {todo.desc && (
+                              <p
+                                className={`text-sm p-2 mt-2 w-[80%] rounded-md ${
+                                  darkMode
+                                    ? "bg-blue-200 text-black "
+                                    : "bg-pink-400 placeholder:text-neutral-900"
+                                }`}>
+                                <strong>Description: </strong>
+                                {todo.desc}
+                              </p>
+                            )}
+                          </div>
                           <div className="flex items-center">
                             <button
                               onClick={() => navigate(`/tasks/${todo.id}`)}>

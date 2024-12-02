@@ -8,6 +8,7 @@ export type todoPayload = {
   complete?: boolean;
   dueDate: string;
   createdAt: string;
+  desc: string;
 };
 const initialState: {
   todos: todoPayload[];

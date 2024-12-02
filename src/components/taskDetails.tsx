@@ -32,6 +32,9 @@ function TaskDetails({
             <strong>Task:</strong> {task.text}
           </p>
           <p className="mb-2">
+            <strong>Description:</strong> {task.desc}
+          </p>
+          <p className="mb-2">
             <strong>Due Time:</strong> {task.dueDate}
           </p>
         </div>
